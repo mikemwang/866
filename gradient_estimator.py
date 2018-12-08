@@ -3,7 +3,7 @@ import cv2
 import time
 import sys
 
-cap = cv2.VideoCapture('ttc_small.mov')
+cap = cv2.VideoCapture('ttc_real.mov')
 last_gray = None
 
 class GradientEstimator:
@@ -65,23 +65,55 @@ class GradientEstimator:
         self.Et = 1.0/(4.0*self.dt)*(k1 - k0)
 
 
-gradient = GradientEstimator()
+class TTC:
+    def __init__(self):
+        self.img_w = None
+        self.img_h = None
+        self.xs = None
+        self.ys = None
+        self.gradient = GradientEstimator()
+        self.xEx = None
+        self.yEy = None
+        self.init_done = False
+        self.t = 0
 
+    def init_on_first_frame(self, frame):
+        self.img_h, self.img_w = frame.shape
+        # for calculating xEx
+        self.xs = np.repeat(np.array([[i - (self.img_w-1)//2 for i in range(self.img_w-1)]]), self.img_w-1, axis=0)
+        # for yEy
+        self.ys = np.repeat(np.array([[i - (self.img_h-1)//2 for i in
+            range(self.img_h-1)]]).T, self.img_h-1, axis=1)
+
+        self.init_done = True
+
+    def update(self, old_frame, new_frame):
+        self.gradient.update(old_frame, new_frame)
+        self.xEx = np.multiply(self.xs, self.gradient.Ex)
+        self.yEy = np.multiply(self.ys, self.gradient.Ey)
+        G_sq = - np.sum(self.xEx**2) + \
+                 2*np.sum(np.multiply(self.xEx,self.yEy)) + \
+                 np.sum(self.yEy**2)
+        GEt = np.sum(np.multiply(self.xEx, self.gradient.Et)) + \
+                np.sum(np.multiply(self.yEy, self.gradient.Et))
+        self.t = - G_sq / GEt
+        print(self.t)
+
+
+
+ttc = TTC()
 while(True):
     # Capture frame-by-frame
-    t = time.time()
-    while (time.time() - t < 1):
-        pass
     ret, frame = cap.read()
 
     # Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    if last_gray is not None:
-        gradient.update(last_gray, gray)
-        xs = np.array([[i - len(gradient.Ex[0])//2 for i in range(len(gradient.Ex[0]))]])
-        ys = np.array([[i - len(gradient.Ex)//2 for i in range(len(gradient.Ex))]])
-        print(xs, ys)
+    if last_gray is None:
+        ttc.init_on_first_frame(gray)
+    else:
+        ttc.update(last_gray, gray)
+
 
     last_gray = gray
 
