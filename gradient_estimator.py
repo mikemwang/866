@@ -2,16 +2,19 @@ import numpy as np
 import cv2
 import time
 import sys
+import matplotlib
+import matplotlib.pyplot as plt
 
-cap = cv2.VideoCapture('ttc_real.mov')
+cap = cv2.VideoCapture('test_movies/ttc_even_more_features.mov')
 last_gray = None
+data = []
 
 class GradientEstimator:
 
     def __init__(self):
         self.dx = 1
         self.dy = 1
-        self.dt = 1
+        self.dt = 0.033
         self.Ex = None
         self.Ey = None
         self.Et = None
@@ -97,15 +100,14 @@ class TTC:
         GEt = np.sum(np.multiply(self.xEx, self.gradient.Et)) + \
                 np.sum(np.multiply(self.yEy, self.gradient.Et))
         self.t = - G_sq / GEt
-        print(self.t)
-
-
 
 ttc = TTC()
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
 
+    if not ret:
+        break
     # Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -113,6 +115,7 @@ while(True):
         ttc.init_on_first_frame(gray)
     else:
         ttc.update(last_gray, gray)
+        data.append(ttc.t)
 
 
     last_gray = gray
@@ -125,6 +128,14 @@ while(True):
 # When everything done, release the capture
 cap.release()
 cv2.destroyAllWindows()
+
+#data = data[200:370]
+
+xs = [i for i in range(len(data))]
+fig, ax = plt.subplots()
+ax.plot(xs, data)
+plt.show()
+
 
 #if __name__ == "__main__":
 #    test = GradientEstimator()
