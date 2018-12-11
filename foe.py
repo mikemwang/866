@@ -3,9 +3,14 @@ import cv2
 import motion
 import matplotlib
 import matplotlib.pyplot as plt
+import yaml
+import sys
+
+# select which one to activate
 
 #cap = cv2.VideoCapture('mp4_movies/train.mp4')
-cap = cv2.VideoCapture('test_movies/ttc_different_foe.mov')
+cap = cv2.VideoCapture(sys.argv[1])
+
 
 # params for ShiTomasi corner detection
 feature_params = dict( maxCorners = 500,
@@ -58,10 +63,12 @@ while(1):
     ###   TTC CODE BEGIN ################
     if not ttc.init_done:
         ttc.init_on_first_frame(old_gray)
-    #ttc.update(old_gray, frame_gray, (foe[0]-frame.shape[1]//2,
-    #          foe[1]-frame.shape[0]//2))
-    ttc.update(old_gray, frame_gray)
-    data.append(ttc.c)
+    if int(sys.argv[2]) == 1:
+        ttc.update(old_gray, frame_gray, (foe[0]-frame.shape[1]//2,
+                  foe[1]-frame.shape[0]//2))
+    else:
+        ttc.update(old_gray, frame_gray)
+    data.append(float(ttc.t))
     ###   TTC CODE END ##################
 
 
@@ -96,9 +103,24 @@ while(1):
 cv2.destroyAllWindows()
 cap.release()
 
+
 ### TTC VISUALIZATION ##############
-#data = data[10:140]
+#stream = file('experimental_data/data.yaml', 'w')
+with open('experimental_data/data.yaml', 'r') as f:
+    data_file = yaml.load(f)
+experiment_name = sys.argv[1]
+sub_ex = "NO_FOE" if int(sys.argv[2]) == 0 else "WITH_FOE"
+
+if experiment_name not in data_file:
+    data_file[experiment_name] = {"WITH_FOE": dict(), "NO_FOE": dict()}
 xs = [i for i in range(len(data))]
+data_file[experiment_name][sub_ex]['frames'] = xs
+data_file[experiment_name][sub_ex]['data'] = data
+data_file[experiment_name][sub_ex]['groundtruth'] = xs[::-1]
+
+with open('experimental_data/data.yaml', 'w') as f:
+    yaml.dump(data_file, f)
+
 fig, ax = plt.subplots()
 ax.plot(xs, data)
 ax.plot(xs, xs[::-1])

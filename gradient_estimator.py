@@ -6,16 +6,16 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 #cap = cv2.VideoCapture('mp4_movies/train.mp4')
-#cap = cv2.VideoCapture('test_movies/ttc_smooth.mov')
-cap = cv2.VideoCapture('test_movies/ttc_different_foe.mov')
+cap = cv2.VideoCapture('test_movies/ttc_same_axis.mov')
+#cap = cv2.VideoCapture(sys.argv[1])
 last_gray = None
 data = []
 
 class GradientEstimator:
 
     def __init__(self):
-        self.dx = 1.5
-        self.dy = 1.5
+        self.dx = 1
+        self.dy = 1
         self.dt = 1
         self.Ex = None
         self.Ey = None
@@ -135,7 +135,6 @@ while(True):
 cap.release()
 cv2.destroyAllWindows()
 
-#data = data[200:370]
 
 xs = [i for i in range(len(data))]
 fig, ax = plt.subplots()

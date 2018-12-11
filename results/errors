@@ -1,0 +1,11 @@
+same_axis NO_FOE average absolute error: 189.8413915087052
+same_axis WITH_FOE average absolute error: 191.83445214324465
+
+small_axis_delta NO_FOE average absolute error: 199.56055761873597
+small_axis_delta WITH_FOE average absolute error: 185.54512683026093
+
+medium_axis_delta NO_FOE average absolute error: 260.40218610116113
+medium_axis_delta WITH_FOE average absolute error: 180.90061489019084
+
+large_axis_delta NO_FOE average absolute error: 429.93710227059955
+large_axis_delta WITH_FOE average absolute error: 178.6834091782921

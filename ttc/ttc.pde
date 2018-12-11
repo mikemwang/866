@@ -7,8 +7,8 @@ void setup() {
 
 ArrayList<String> ground_truth = new ArrayList<String>();
 
-PVector goal = new PVector(100,100,0);
-PVector start = new PVector(-100,-100, -1000);
+PVector goal = new PVector(0,0,0);
+PVector start = new PVector(0,0, -1000);
 PVector dir = PVector.sub(goal,start);
 float goal_frames = 400;
 PVector cur = start;
