@@ -1,7 +1,9 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture('./mp4_movies/train.mp4')
+#cap = cv2.VideoCapture('./mp4_movies/ttc.mp4')
+cap = cv2.VideoCapture(0)
+
 
 # params for ShiTomasi corner detection
 feature_params = dict( maxCorners = 500,
@@ -21,6 +23,9 @@ p0 = cv2.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
 foe = None
 framecount = 0
 while(1):
+    if framecount < 5:
+        framecount += 1
+        continue
     ret,frame = cap.read()
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
